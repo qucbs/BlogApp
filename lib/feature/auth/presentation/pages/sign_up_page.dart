@@ -1,7 +1,9 @@
+import 'package:blog_app/feature/auth/presentation/bloc/auth_bloc.dart';
 import 'package:blog_app/feature/auth/presentation/widgets/auth_feilds.dart';
 import 'package:blog_app/feature/auth/presentation/widgets/auth_gradient_button.dart';
 import 'package:blog_app/routes.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -15,14 +17,6 @@ class _SignUpPageState extends State<SignUpPage> {
   final passwordController = TextEditingController();
   final nameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-
-  @override
-  void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
-    nameController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,9 +35,12 @@ class _SignUpPageState extends State<SignUpPage> {
                   style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 30),
-                AuthFeilds(hintText: 'Name', controller: nameController),
+                AuthFeilds(hintText: 'Name', controller: nameController,),
                 const SizedBox(height: 15),
-                AuthFeilds(hintText: 'Email', controller: emailController),
+                AuthFeilds(
+                  controller: emailController,
+                  hintText: 'Email',
+                ),
                 const SizedBox(height: 15),
                 AuthFeilds(
                   hintText: 'Password',
@@ -51,7 +48,35 @@ class _SignUpPageState extends State<SignUpPage> {
                   obscureText: true,
                 ),
                 const SizedBox(height: 20),
-                const AuthGradientButton(buttontext: 'Sign Up'),
+                AuthGradientButton(
+                  buttontext: 'Sign Up',
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      final email = emailController.text.trim();
+                      final password = passwordController.text.trim();
+                      final name = nameController.text.trim();
+
+                      context.read<AuthBloc>().add(
+                        AuthSignup(
+                          email: email,
+                          password: password,
+                          name: name,
+                        ),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Signing Up with $email',
+                          ),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Some Error Occurred')),
+                      );
+                    }
+                  },
+                ),
                 const SizedBox(height: 20),
                 GestureDetector(
                   onTap: () {
@@ -81,5 +106,13 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    nameController.dispose();
+    super.dispose();
   }
 }

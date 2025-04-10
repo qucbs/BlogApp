@@ -1,46 +1,41 @@
-import 'package:blog_app/core/secrets/app_secrets.dart';
+import 'package:blog_app/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:blog_app/core/theme/theme.dart';
-import 'package:blog_app/feature/auth/data/datasource/auth_supabase_data_source.dart';
-import 'package:blog_app/feature/auth/data/repository/auth_repository.dart';
-import 'package:blog_app/feature/auth/domain/usecases/user_sign_up.dart';
 import 'package:blog_app/feature/auth/presentation/bloc/auth_bloc.dart';
 import 'package:blog_app/feature/auth/presentation/pages/sign_in_page.dart';
 import 'package:blog_app/feature/auth/presentation/pages/sign_up_page.dart';
+import 'package:blog_app/init_dependencies.dart';
 import 'package:blog_app/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Supabase.initialize(
-    url: AppSecrets.supabaseUrl,
-    anonKey: AppSecrets.supabaseAnonKey,
-  );
-  final supabaseClient = Supabase.instance.client;
+  await initDependencies();
+
   runApp(
     MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create:
-              (_) => AuthBloc(
-                userSignUp: UserSignUp(
-                  authRepository: AuthRepositoryImp(
-                    authSupabaseDataSource: AuthSupabaseDataSourceImpl(
-                      supabaseClient: supabaseClient,
-                    ),
-                  ),
-                ),
-              ),
-        ),
+        BlocProvider(create: (_) => serviceLocator<AuthBloc>()),
+        BlocProvider(create: (_) => serviceLocator<AppUserCubit>()),
       ],
       child: const MyApp(),
     ),
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<AuthBloc>().add(AuthisuserSignedIn());
+  }
 
   // This widget is the root of your application.
   @override
@@ -49,7 +44,17 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Blog App',
       theme: AppTheme.darkThemeMode,
-      home: const SignInPage(),
+      home: BlocSelector<AppUserCubit, AppUserState, bool>(
+        selector: (state) {
+          return state is AppuserSignedIn;
+        },
+        builder: (context, isSignedIn) {
+          if (isSignedIn) {
+            return const Scaffold(body: Center(child: Text('Signed In')));
+          }
+          return const SignInPage();
+        },
+      ),
       routes: {
         signinpage: (context) => const SignInPage(),
         signuppage: (context) => const SignUpPage(),

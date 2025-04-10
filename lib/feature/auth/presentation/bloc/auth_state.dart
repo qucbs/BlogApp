@@ -8,11 +8,12 @@ final class AuthInitial extends AuthState {}
 final class AuthLoading extends AuthState {}
 
 final class AuthSuccess extends AuthState {
-  final String uid;
-  AuthSuccess({required this.uid});
+  final User user;
+  AuthSuccess({required this.user});
 }
 
 final class AuthFaliure extends AuthState {
   final String message;
   AuthFaliure({required this.message});
 }
+

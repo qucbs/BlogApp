@@ -18,6 +18,7 @@ class UploadBlog implements UseCase<Blog , UploadBlogParams>{
       content: params.content,
       categories: params.categories,
       poster_id: params.poster_id,
+      edited_at: DateTime.now().toIso8601String(), // Ensure edited_at is passed correctly
     );
   }
 }
@@ -28,6 +29,7 @@ class UploadBlogParams {
   final String content;
   final List<String> categories;
   final String poster_id;
+  final String edited_at; // Added edited_at field
 
   const UploadBlogParams({
     required this.image,
@@ -35,5 +37,6 @@ class UploadBlogParams {
     required this.content,
     required this.categories,
     required this.poster_id,
+    required this.edited_at,
   });
 }

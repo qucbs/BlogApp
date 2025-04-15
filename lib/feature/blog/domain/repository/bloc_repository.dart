@@ -11,5 +11,6 @@ abstract class BlogRepository {
     required String content,
     required List<String> categories,
     required String poster_id,
+    required String edited_at,
   });
 }

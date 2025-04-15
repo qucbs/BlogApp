@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:blog_app/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:blog_app/core/common/widgets/loader.dart';
@@ -23,21 +22,14 @@ class _AddNewScreenState extends State<AddNewScreen> {
   final contentController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   List<String> selectedCategories = [];
-  File? image;
-  Uint8List? webImage; // For web image
+  File? image; 
 
   void selectImage() async {
     final pickedImage = await pickImage();
 
     if (pickedImage != null) {
       setState(() {
-        if (pickedImage is File) {
           image = pickedImage;
-          webImage = null; // Clear web image if needed
-        } else if (pickedImage is Uint8List) {
-          webImage = pickedImage;
-          image = null; // Clear file image if needed
-        }
       });
     }
   }
@@ -45,7 +37,7 @@ class _AddNewScreenState extends State<AddNewScreen> {
   void uploadBlog() {
     if (formKey.currentState!.validate() &&
         selectedCategories.isNotEmpty &&
-        (image != null || webImage != null)) {
+        image != null) {
       final appUserState = context.read<AppUserCubit>().state;
 
       if (appUserState is! AppuserSignedIn) {
@@ -58,34 +50,22 @@ class _AddNewScreenState extends State<AddNewScreen> {
         return;
       }
 
-      final posterId = appUserState.user.id;
-      final imageToUpload = image;
-
-      if (imageToUpload == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please select an image'),
-            backgroundColor: AppColors.background,
-          ),
-        );
-        return;
-      }
+      final poster_id = appUserState.user.id;
 
       context.read<BlogBloc>().add(
         BlogUpload(
           title: titleController.text.trim(),
           content: contentController.text.trim(),
-          poster_id: posterId,
+          poster_id: poster_id,
           categories: selectedCategories,
-          image: imageToUpload, // Send either File or Uint8List
+          image: image!,
+          edited_at: DateTime.now().toString(), // Set edited_at to current time
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'Please fill all the fields and select at least one category',
-          ),
+          content: Text('Please fill all the fields and select an image'),
           backgroundColor: AppColors.background,
         ),
       );
@@ -113,6 +93,12 @@ class _AddNewScreenState extends State<AddNewScreen> {
             padding: const EdgeInsets.all(8.0),
             child: IconButton(
               onPressed: () {
+                print(
+                  'title ----------------- : ${titleController.text.trim()}',
+                );
+                print(
+                  'content ------------------ : ${contentController.text.trim()}',
+                );
                 uploadBlog();
               },
               icon: const Icon(Icons.done),
@@ -151,7 +137,7 @@ class _AddNewScreenState extends State<AddNewScreen> {
                 key: formKey,
                 child: Column(
                   children: [
-                    (image != null || webImage != null)
+                    (image != null)
                         ? Padding(
                           padding: const EdgeInsets.only(left: 20, right: 20),
                           child: SizedBox(
@@ -160,12 +146,7 @@ class _AddNewScreenState extends State<AddNewScreen> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(10),
                               child:
-                                  image != null
-                                      ? Image.file(image!, fit: BoxFit.cover)
-                                      : Image.memory(
-                                        webImage!,
-                                        fit: BoxFit.cover,
-                                      ),
+                                  Image.file(image!, fit: BoxFit.cover)
                             ),
                           ),
                         )

@@ -5,7 +5,7 @@ class Blog {
   final String content;
   final String image_url;
   final List<String> categories;
-  final DateTime editedat;
+  final DateTime edited_at;
 
   Blog({
     required this.poster_id,
@@ -14,6 +14,6 @@ class Blog {
     required this.content,
     required this.image_url,
     required this.categories,
-    required this.editedat,
+    required this.edited_at,
   });
 }

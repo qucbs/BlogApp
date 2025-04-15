@@ -7,7 +7,7 @@ class BlogModel extends Blog {
     required super.content,
     required super.image_url,
     required super.categories,
-    required super.editedat,
+    required super.edited_at,
     required super.poster_id,
   });
 
@@ -19,7 +19,7 @@ class BlogModel extends Blog {
       'content': content,
       'image_url': image_url,
       'categories': categories,
-      'editedat': editedat.toIso8601String(),
+      'editedat': edited_at.toIso8601String(), // Ensure edited_at is serialized
     };
   }
 
@@ -31,7 +31,10 @@ class BlogModel extends Blog {
       content: map['content'] as String,
       image_url: map['image_url'] as String,
       categories: List<String>.from(map['categories'] ?? []),
-      editedat: (map['editedat'] == null ? DateTime.now() : DateTime.parse(map['editedAt'])),
+      edited_at:
+          map['editedat'] != null
+              ? DateTime.parse(map['editedat']) // Parse edited_at from JSON
+              : DateTime.now(),
     );
   }
 
@@ -41,7 +44,7 @@ class BlogModel extends Blog {
     String? content,
     String? image_url,
     List<String>? categories,
-    DateTime? editedat,
+    DateTime? edited_at,
     String? poster_id,
   }) {
     return BlogModel(
@@ -50,8 +53,13 @@ class BlogModel extends Blog {
       content: content ?? this.content,
       image_url: image_url ?? this.image_url,
       categories: categories ?? this.categories,
-      editedat: editedat ?? this.editedat,
+      edited_at: edited_at ?? this.edited_at, // Ensure edited_at is copied
       poster_id: poster_id ?? this.poster_id,
     );
+  }
+
+  @override
+  String toString() {
+    return 'BlogModel(id: $id, title: $title, content: $content, image_url: $image_url, categories: $categories, edited_at: $edited_at, poster_id: $poster_id)';
   }
 }

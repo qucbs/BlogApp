@@ -11,5 +11,9 @@ final class BlogSuccess extends BlogState {}
 
 final class BlogFailure extends BlogState {
   final String error;
-  BlogFailure(this.error);
+
+   BlogFailure(this.error);
+
+  @override
+  String toString() => 'BlogFailure(error: $error)';
 }

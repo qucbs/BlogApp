@@ -19,11 +19,11 @@ abstract interface class AuthSupabaseDataSource {
 }
 
 class AuthSupabaseDataSourceImpl implements AuthSupabaseDataSource {
-  @override
-  Session? get currentUserSession => supabaseClient.auth.currentSession;
-
   final SupabaseClient supabaseClient;
   AuthSupabaseDataSourceImpl({required this.supabaseClient});
+
+  @override
+  Session? get currentUserSession => supabaseClient.auth.currentSession;
 
   @override
   Future<UserModel> signinWithEmailAndPassword({
@@ -36,11 +36,11 @@ class AuthSupabaseDataSourceImpl implements AuthSupabaseDataSource {
         password: password,
       );
       if (response.user == null) {
-        throw ServerException('No user found');
+        throw ServerException('No user found', StackTrace.current);
       }
       return UserModel.fromJson(response.user!.toJson());
     } catch (e) {
-      throw ServerException(e.toString());
+      throw ServerException(e.toString(), StackTrace.current);
     }
   }
 
@@ -57,11 +57,11 @@ class AuthSupabaseDataSourceImpl implements AuthSupabaseDataSource {
         data: {'name': name},
       );
       if (response.user == null) {
-        throw ServerException('No user found');
+        throw ServerException('No user found', StackTrace.current);
       }
       return UserModel.fromJson(response.user!.toJson());
     } catch (e) {
-      throw ServerException(e.toString());
+      throw ServerException(e.toString(), StackTrace.current);
     }
   }
 
@@ -73,13 +73,14 @@ class AuthSupabaseDataSourceImpl implements AuthSupabaseDataSource {
             .from('profiles')
             .select()
             .eq('id', currentUserSession!.user.id);
-        return UserModel.fromJson(userData.first).copyWith(
-          email: currentUserSession!.user.email,
-        );
+
+        return UserModel.fromJson(
+          userData.first,
+        ).copyWith(email: currentUserSession!.user.email);
       }
       return null;
     } catch (e) {
-      throw ServerException(e.toString());
+      throw ServerException(e.toString(), StackTrace.current);
     }
   }
 }

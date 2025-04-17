@@ -9,6 +9,7 @@ class BlogModel extends Blog {
     required super.categories,
     required super.edited_at,
     required super.poster_id,
+    super.posterName
   });
 
   Map<String, dynamic> toJson() {
@@ -46,6 +47,7 @@ class BlogModel extends Blog {
     List<String>? categories,
     DateTime? edited_at,
     String? poster_id,
+    String? posterName,
   }) {
     return BlogModel(
       id: id ?? this.id,
@@ -55,6 +57,7 @@ class BlogModel extends Blog {
       categories: categories ?? this.categories,
       edited_at: edited_at ?? this.edited_at, // Ensure edited_at is copied
       poster_id: poster_id ?? this.poster_id,
+      posterName: posterName ?? this.posterName,
     );
   }
 

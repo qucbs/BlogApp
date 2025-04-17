@@ -36,6 +36,8 @@ class _SignInPageState extends State<SignInPage> {
           listener: (context, state) {
             if (state is AuthFaliure) {
               showErrorSnackbar(context, state.message);
+            } else if (state is AuthSuccess) {
+              Navigator.of(context).pushReplacementNamed(blogpage);
             }
           },
           builder: (context, state) {
@@ -75,7 +77,7 @@ class _SignInPageState extends State<SignInPage> {
                             ),
                           );
                           ScaffoldMessenger.of(context).showSnackBar(
-                             SnackBar(
+                            SnackBar(
                               content: Text(
                                 'Signing in with ${emailController.text.trim()}',
                               ),

@@ -6,7 +6,7 @@ import 'package:fpdart/fpdart.dart';
 
 class CurrentUser implements UseCase<User, Noparams> {
   final AuthRepository authRepository;
-  const CurrentUser({required this.authRepository});
+  CurrentUser({required this.authRepository});
 
   @override
   Future<Either<Failure, User>> call(Noparams params) async {

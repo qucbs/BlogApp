@@ -3,9 +3,11 @@ import 'package:blog_app/core/theme/theme.dart';
 import 'package:blog_app/feature/auth/presentation/bloc/auth_bloc.dart';
 import 'package:blog_app/feature/auth/presentation/pages/sign_in_page.dart';
 import 'package:blog_app/feature/auth/presentation/pages/sign_up_page.dart';
+import 'package:blog_app/feature/blog/domain/entity/blog.dart';
 import 'package:blog_app/feature/blog/presentation/bloc/blog_bloc.dart';
 import 'package:blog_app/feature/blog/presentation/screens/add_new_screen.dart';
 import 'package:blog_app/feature/blog/presentation/screens/blog_screen.dart';
+import 'package:blog_app/feature/blog/presentation/screens/blog_viewer.dart';
 import 'package:blog_app/init_dependencies.dart';
 import 'package:blog_app/routes.dart';
 import 'package:flutter/material.dart';
@@ -64,6 +66,10 @@ class _MyAppState extends State<MyApp> {
         signuppage: (context) => const SignUpPage(),
         blogpage: (context) => const BlogScreen(),
         addnewscreen: (context) => const AddNewScreen(),
+        blogviewer: (context) {
+          final blog = ModalRoute.of(context)!.settings.arguments as Blog;
+          return BlogViewerScreen(blog: blog);
+        },
       },
     );
   }

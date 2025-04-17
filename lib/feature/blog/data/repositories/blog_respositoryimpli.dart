@@ -1,5 +1,8 @@
 import 'dart:io';
+import 'package:blog_app/core/error/exceptions.dart';
 import 'package:blog_app/core/error/failure.dart';
+import 'package:blog_app/core/network/connection_checker.dart';
+import 'package:blog_app/feature/blog/data/datasources/blog_local_datasource.dart';
 import 'package:blog_app/feature/blog/data/datasources/blog_supabase_source.dart';
 import 'package:blog_app/feature/blog/data/model/blog_model.dart';
 import 'package:blog_app/feature/blog/domain/entity/blog.dart';
@@ -8,8 +11,10 @@ import 'package:fpdart/fpdart.dart';
 import 'package:uuid/uuid.dart';
 
 class BlogRepositoryimpl implements BlogRepository {
+  final BlogLocalDataSource blogLocalDataSource;
+  final ConnectionChecker connectionChecker;
   final BlogSupabaseSource blogSupabaseSource;
-  BlogRepositoryimpl(this.blogSupabaseSource);
+  BlogRepositoryimpl(this.blogSupabaseSource, this.blogLocalDataSource, this.connectionChecker);
 
   @override
   Future<Either<Failure, Blog>> uploadBlog({
@@ -21,13 +26,9 @@ class BlogRepositoryimpl implements BlogRepository {
     required String edited_at,
   }) async {
     try {
-      print('Debug: Title: $title');
-      print('Debug: Content: $content');
-      print('Debug: Poster ID: $poster_id');
-      print('Debug: Categories: $categories');
-      print('Debug: Image: $image');
-      print('Debug: Edited At: $edited_at');
-
+      if (!await connectionChecker.isConnected) {
+        return left(Failure('No internet connection'));
+      }
       BlogModel blogModel = BlogModel(
         id: const Uuid().v1(),
         title: title,
@@ -49,6 +50,21 @@ class BlogRepositoryimpl implements BlogRepository {
       return right(uploadedblog);
     } catch (e) {
       return left(Failure('Unexpected error occurred: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Blog>>> getAllBlogs() async {
+    try {
+      if (!await connectionChecker.isConnected) {
+        final blogs = blogLocalDataSource.loadBlogs();
+        return right(blogs);
+      }
+      final blogs = await blogSupabaseSource.getAllBlogs();
+      blogLocalDataSource.uploadLocalBlogs(blogs: blogs);
+      return right(blogs);
+    } on ServerException catch (e) {
+      return left(Failure(e.toString()));
     }
   }
 }

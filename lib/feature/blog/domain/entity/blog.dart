@@ -6,6 +6,7 @@ class Blog {
   final String image_url;
   final List<String> categories;
   final DateTime edited_at;
+  final String? posterName;
 
   Blog({
     required this.poster_id,
@@ -15,5 +16,6 @@ class Blog {
     required this.image_url,
     required this.categories,
     required this.edited_at,
+    this.posterName
   });
 }

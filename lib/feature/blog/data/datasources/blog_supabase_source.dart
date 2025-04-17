@@ -10,6 +10,7 @@ abstract interface class BlogSupabaseSource {
     required File image,
     required BlogModel blog,
   });
+  Future<List<BlogModel>> getAllBlogs();
 }
 
 class BlogSupabaseSourceImpl implements BlogSupabaseSource {
@@ -23,7 +24,7 @@ class BlogSupabaseSourceImpl implements BlogSupabaseSource {
           await supabaseClient.from('blogs').insert(blog.toJson()).select();
       return BlogModel.fromJson(blogData.first);
     } catch (e) {
-      throw ServerException(e.toString());
+      throw ServerException(e.toString(), StackTrace.current);
     }
   }
 
@@ -33,10 +34,29 @@ class BlogSupabaseSourceImpl implements BlogSupabaseSource {
     required BlogModel blog,
   }) async {
     try {
-      await supabaseClient.storage.from('blog_images').upload(blog.id, image);
-      return supabaseClient.storage.from('blog_images').getPublicUrl(blog.id);
+      final filePath = '${blog.id}.jpg'; // or .png, based on your image
+      await supabaseClient.storage.from('blog_images').upload(filePath, image);
+      return supabaseClient.storage.from('blog_images').getPublicUrl(filePath);
     } catch (e) {
-      throw ServerException(e.toString());
+      throw ServerException(e.toString(), StackTrace.current);
+    }
+  }
+
+  @override
+  Future<List<BlogModel>> getAllBlogs() async {
+    try {
+      final blogs = await supabaseClient
+          .from('blogs')
+          .select('*, profiles(name)');
+
+      return blogs.map<BlogModel>((blog) {
+        final profile = blog['profiles'];
+        final posterName = profile != null ? profile['name'] : null;
+
+        return BlogModel.fromJson(blog).copywith(posterName: posterName);
+      }).toList();
+    } catch (e) {
+      throw ServerException(e.toString(), StackTrace.current);
     }
   }
 }

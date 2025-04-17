@@ -14,6 +14,6 @@ final class AuthSuccess extends AuthState {
 
 final class AuthFaliure extends AuthState {
   final String message;
+
   AuthFaliure({required this.message});
 }
-

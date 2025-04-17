@@ -7,5 +7,5 @@ final class AppUserInitial extends AppUserState {}
 
 final class AppuserSignedIn extends AppUserState {
   final User user;
-  AppuserSignedIn({required this.user});
+  AppuserSignedIn(this.user);
 }

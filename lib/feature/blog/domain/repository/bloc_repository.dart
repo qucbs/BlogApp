@@ -13,4 +13,6 @@ abstract class BlogRepository {
     required String poster_id,
     required String edited_at,
   });
+
+  Future <Either<Failure, List<Blog>>> getAllBlogs();
 }

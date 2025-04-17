@@ -1,9 +1,11 @@
 class ServerException implements Exception {
   final String message;
-  ServerException(this.message);
+  final StackTrace stackTrace;
+  ServerException(this.message, this.stackTrace);
 
   @override
   String toString() {
     return 'ServerException: $message';
   }
+
 }

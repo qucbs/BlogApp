@@ -22,16 +22,22 @@ class _AddNewScreenState extends State<AddNewScreen> {
   final contentController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   List<String> selectedCategories = [];
-  File? image; 
+  File? image;
 
   void selectImage() async {
     final pickedImage = await pickImage();
 
     if (pickedImage != null) {
       setState(() {
-          image = pickedImage;
+        image = pickedImage;
       });
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<BlogBloc>().add(BlogFetchAllBlogs());
   }
 
   void uploadBlog() {
@@ -116,7 +122,7 @@ class _AddNewScreenState extends State<AddNewScreen> {
               ),
             );
             print('Error ----------------- : ${state.error}');
-          } else if (state is BlogSuccess) {
+          } else if (state is BlogUploadSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Blog uploaded successfully!'),
@@ -124,6 +130,7 @@ class _AddNewScreenState extends State<AddNewScreen> {
               ),
             );
             Navigator.pop(context); // Navigate back after success
+            context.read<BlogBloc>().add(BlogFetchAllBlogs());
           }
         },
         builder: (context, state) {
@@ -145,8 +152,7 @@ class _AddNewScreenState extends State<AddNewScreen> {
                             height: 250,
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(10),
-                              child:
-                                  Image.file(image!, fit: BoxFit.cover)
+                              child: Image.file(image!, fit: BoxFit.cover),
                             ),
                           ),
                         )
@@ -208,7 +214,7 @@ class _AddNewScreenState extends State<AddNewScreen> {
                                     ),
                                     backgroundColor:
                                         selectedCategories.contains(category)
-                                            ? Color.fromRGBO(112, 94, 250, 1)
+                                            ? AppColors.primary
                                             : null,
                                     side:
                                         selectedCategories.contains(category)

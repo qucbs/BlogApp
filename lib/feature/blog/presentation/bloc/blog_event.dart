@@ -20,3 +20,5 @@ class BlogUpload extends BlogEvent {
     required this.edited_at,
   });
 }
+
+final class BlogFetchAllBlogs extends BlogEvent {}
